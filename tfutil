@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import configparser
+from pathlib import Path
+import sys
+
+
+### Settings file
+PROFILE_PATH = Path(__file__).parent.absolute()
+PROFILE_FILE = str(PROFILE_PATH) + "/.tfutil_profile.ini"
+
+
+## Initialize root dir
+def init():
+    for filename in ROOT_FILE_TEMPLATE_LIST:
+        f = open(filename, "w+").close()
+
+
+
+## Add module
+def add_module(module_name):
+    current_dir = os.getcwd()
+    module = os.path.join(current_dir, MODULE_FOLDER, module_name)
+    if not os.path.exists(module):
+        os.makedirs(module, exist_ok=True)
+
+    for filename in MODULE_FILE_TEMPLATE_LIST:
+        module_file = os.path.join(module, filename)
+        f = open(module_file, "w+").close()
+
+
+
+## Add env
+def add_env(env_name):
+    print('to do')
+
+
+## Help method
+def help():
+    text = """Usage: tfutil [command] [option]\n
+    -i, --init           -- creates root file structure
+    -i, --add-module     -- creates module's directory with files
+    -e, --add-env        -- creates directory for environment
+
+    Examples:
+
+    tfutil --add-module=vpc                 -- creates module/vpc/*.tf file structure with DEFAULT profile
+    tfutil -m vpc                           -- creates module/vpc/*.tf file structure with DEFAULT profile
+    tfutil --init --profile my_profile      -- creates root file structure with custom profile
+    """
+    print(text)
+
+
+
+
+PROFILE=""
+
+parser = argparse.ArgumentParser(description="Creates Terraform file structure")
+
+parser.add_argument('--init','-i', action='store_true', help="creates files in root folder")
+parser.add_argument('--add-module', '-m', help="creates module's filestructure")
+parser.add_argument('--add-env', '-e', help="creates environment filestructure")
+
+# Choose profile
+parser.add_argument('--profile', default='DEFAULT',  help="choose the profile. If no value specified, DEFAULT will be used")
+
+# Parse all args from command line
+args = parser.parse_args()
+
+
+## Set profile as DEFAULT if it wasn't specified
+PROFILE = args.profile
+
+## Check if specified profile exists in config file
+try:
+    config = configparser.ConfigParser()
+    config.read(PROFILE_FILE)
+
+    ## Read Config
+    ROOT_FILE_TEMPLATE_LIST = config[PROFILE]['ROOT_FILE_TEMPLATE_LIST'].split(', ')
+    MODULE_FILE_TEMPLATE_LIST = (config[PROFILE]['MODULE_FILE_TEMPLATE_LIST']).split(', ')
+    MODULE_FOLDER = config[PROFILE]['MODULES_FOLDER']
+except KeyError:
+    print("Error!\nProfile that you've specified doesn't exists")
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    if args.init == True:
+        init()
+    elif args.add_module:
+        add_module(args.add_module)
+    elif  args.add_env:
+        add_env(args.add_module)
+    else: help()
