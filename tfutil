@@ -34,7 +34,14 @@ def add_module(module_name):
 
 ## Add env
 def add_env(env_name):
-    print('to do')
+    current_dir = os.getcwd()
+    env = os.path.join(current_dir, env_name)
+    if not os.path.exists(env):
+        os.makedirs(env, exist_ok=True)
+
+    for filename in ENV_FILE_TEMPLATE_LIST:
+        env_file = os.path.join(env, filename)
+        f = open(env_file, "w+").close()    
 
 
 ## Help method
@@ -53,9 +60,6 @@ def help():
     print(text)
 
 
-
-
-PROFILE=""
 
 parser = argparse.ArgumentParser(description="Creates Terraform file structure")
 
@@ -82,6 +86,7 @@ try:
     ROOT_FILE_TEMPLATE_LIST = config[PROFILE]['ROOT_FILE_TEMPLATE_LIST'].split(', ')
     MODULE_FILE_TEMPLATE_LIST = (config[PROFILE]['MODULE_FILE_TEMPLATE_LIST']).split(', ')
     MODULE_FOLDER = config[PROFILE]['MODULES_FOLDER']
+    ENV_FILE_TEMPLATE_LIST = config[PROFILE]['ENV_FILE_TEMPLATE_LIST'].split(', ')
 except KeyError:
     print("Error!\nProfile that you've specified doesn't exists")
     sys.exit(1)
@@ -93,5 +98,5 @@ if __name__ == "__main__":
     elif args.add_module:
         add_module(args.add_module)
     elif  args.add_env:
-        add_env(args.add_module)
+        add_env(args.add_env)
     else: help()
