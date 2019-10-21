@@ -10,7 +10,7 @@ A simple script that will help you create Terraform file structure
 
 ```
     -i, --init           -- creates root file structure
-    -i, --add-module     -- creates module's directory with files
+    -m, --add-module     -- creates module's directory with files
     -e, --add-env        -- creates directory for environment
 ```
 
